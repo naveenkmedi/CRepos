@@ -6,6 +6,8 @@ using namespace std;
 int ip[9][9] ={9,0,8,0,3,1,0,0,0, 0,0,0,0,2,0,5,0,0,5,0,0,0,9,0,0,4,0,0,0,0,8,0,0,0,0,5,8,3,2,0,0,0,1,7,4,1,0,0,0,0,7,0,0,0,0,8,0,0,5,0,0,0,3,0,0,7,0,8,0,0,0,0,0,0,0,4,7,0,6,0,2};
 vector<int>  v[81];
 vector<int>  ve[81];
+vector<int>  vc[81];
+vector<int>  vb[81];
 void  printVectorV(int count1, int count2);
 void reinitVector(int row, int col);
 void mergeColumn();
@@ -183,6 +185,46 @@ void updateVe(int row, int col, int num)
 	}
 }
 
+void updateVc(int row, int col, int num)
+{
+	int index = 9*row+col;
+	if(ip[row][col] == 0)
+	{
+		int tempCount = count(vc[index].begin(), vc[index].end(), num);
+		if(tempCount == 1)
+		{
+			vector<int>::iterator itTemp;
+			itTemp = find(vc[index].begin(), vc[index].end(), num);
+			vc[index].at(itTemp-vc[index].begin()) = 0;
+		}
+	}
+
+	else
+	{
+		reinitVector(row, col); //redundant
+	}
+}
+
+void updateVb(int row, int col, int num)
+{
+	int index = 9*row+col;
+	if(ip[row][col] == 0)
+	{
+		int tempCount = count(vb[index].begin(), vb[index].end(), num);
+		if(tempCount == 1)
+		{
+			vector<int>::iterator itTemp;
+			itTemp = find(vb[index].begin(), vb[index].end(), num);
+			vb[index].at(itTemp-vb[index].begin()) = 0;
+		}
+	}
+
+	else
+	{
+		reinitVector(row, col); //redundant
+	}
+}
+
 void updateV(int row, int col, int num)
 {
 	//check if the number is already there if not add at first 0
@@ -216,32 +258,41 @@ void updateDependents(int row, int col)
 			//ve and v should be zero
 			reinitVector(row, cCol);
 		}
+		else
+		{
 		//update vector
-		updateV(row, cCol, num);
-	
-		updateVe(row, cCol, num);
+			updateV(row, cCol, num);	
+			updateVe(row, cCol, num);	
+			updateVc(row, cCol, num);
+			updateVb(row, cCol, num);
+		}
 	}
 
 	for(int cRow = 0; cRow < 9; cRow++)
 	{
-		if(cRow == row) continue;
-		updateV(cRow, col, num);
-		updateVe(cRow, col, num);
-	}
-	//column 8
-	//block	4 
-	//00 --- 11 12 21 22
-	//01 ---- 10 12 20 22
-	//02---- 10 12  11 21
-	//for 3x3 - row%3 = vRow%3 or col%3 = vCol%3 continue
-	for(int cRow = row/3; cRow < row/3 + 3; cRow++)
-	{
-			if(cRow%3 == row%3) continue;
-		for(int cCol = col/3; cCol < col/3 + 3; cCol++)
+		if(cRow != row)
 		{
-			if(cCol%3 == cRow % 3) continue;
 			updateV(cRow, col, num);
-			updateVe(cRow, cCol, num);
+			updateVe(cRow, col, num);
+			updateVc(row, cCol, num);
+			updateVb(row, cCol, num);
+		}
+	}
+	
+	for(int i = row/3; i < row/3 + 3; i++)
+	{
+		if(i%3 != row%3) 
+		{
+			for(int j = col/3; j < col/3 + 3; j++)
+			{
+				if(j%3 != col % 3) 
+				{
+					updateV(i, col, num);
+					updateVe(i, j, num);
+					updateVc(row, j, num);
+					updateVb(row, j, num);
+				}
+			}
 		}
 	}
 }
@@ -308,16 +359,16 @@ void vecInit()
 		{
 			v[i].push_back(0);
 			ve[i].push_back(0);
+			vc[i].push_back(0);
 		}
 	}
-	cout<<"init\t"<<ve[40].size()<<endl;
+	//cout<<"init\t"<<ve[40].size()<<endl;
 }
 
-void mergeSovle(vector <int> *v2)
+void mergeSovleRow(vector <int> *v2)
 {
 	for(int row = 0; row < 9; row++)
 	{
-
 		for(int i = 1; i < 10; i++)
 		{
 			solve(0, 0);
@@ -358,21 +409,21 @@ void mergeRow()
 				v2[row].insert(v2[row].end(), ve[9*row+col].begin(), ve[9*row+col].end());
 		}
 	}
-	mergeSovle(&v2[0]);
+	mergeSovleRow(&v2[0]);
 }
 
-void mergeSovleColumn(vector <int> *v2)
+void mergeSovleColumn(vector <int> *vc)
 {
 	for(int col = 0; col < 9; col++)
 	{
 		for(int i = 1; i < 10; i++)
 		{
 			solve(0, 0);
-			if(1 == count(v2[col].begin(),v2[col].end(), i))
+			if(1 == count(vc[col].begin(),vc[col].end(), i))
 			{
 				vector<int>::iterator it;
-				it = find(v2[col].begin(), v2[col].end(), i);
-				int pos = (it-v2[col].begin())/9;
+				it = find(vc[col].begin(), vc[col].end(), i);
+				int pos = (it-vc[col].begin())/9;
 
 				if((pos == 1) &&(col == 2))
 				{
@@ -392,18 +443,17 @@ void mergeSovleColumn(vector <int> *v2)
 
 void mergeColumn()
 {
-	vector<int> v2[9];
+	vector<int> vc[9];
 	for(int col = 0; col < 9; col++)
 	{
-		v2[col].clear();
-		v2[col].reserve( 9*(v[1].size())); // preallocate memory
+		vc[col].clear();
+		vc[col].reserve(9*(v[1].size())); // preallocate memory
 		for(int row = 0; row < 9; row++)
 		{
-				//cout<<"merging size(, col) -"<<row<<","<<col<<") - "<<ve[9*row+col].size()<<endl;
-				v2[col].insert(v2[col].end(), ve[9*row+col].begin(), ve[9*row+col].end());
+				vc[col].insert(vc[col].end(), vc[9*row+col].begin(), vc[9*row+col].end());
 		}
 	}
-	mergeSovleColumn(&v2[0]);
+	mergeSovleColumn(&vc[0]);
 }
 
 int main()
@@ -415,8 +465,8 @@ int main()
 	{
 		//solve(1,1);
 		//solve(1,1);solve(1,1);solve(1,1);solve(1,1);solve(1,1);solve(1,1);
-		mergeRow();
-		//mergeColumn();
+		//mergeRow();
+		mergeColumn();
 		//populateMaps();
 	}
 	printOutput();
