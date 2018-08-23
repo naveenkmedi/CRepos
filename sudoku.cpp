@@ -12,7 +12,6 @@ void reinitVector(int row, int col);
 void mergeColumn();
 void mergeSovleColumn(vector<int> *v2);
 void printVector(vector <int> *pv);
-void updateV(int row, int col, int num);
 void updateVe(int row, int col, int num);
 void populateVe(int row, int col);
 void populateMaps();
@@ -83,33 +82,10 @@ void populateMaps()
 }
 
 void reinitVector(int row, int col)
-{
-	while(v[row][col].size() != 0)
-		v[row][col].pop_back();
-	
+{	
 	while(ve[row][col].size() != 0)
 		ve[row][col].pop_back();
 }
-
-
-
-void updateV(int row, int col, int num)
-{
-	if(ip[row][col] == 0)
-	{
-		int tempCount = count(v[row][col].begin(), v[row][col].end(), num);
-		if(tempCount == 0)
-		{
-			v[row][col].push_back(num);
-		}
-	}
-
-	else
-	{
-		reinitVector(row, col); //redundant
-	}
-}
-
 
 void updateVe(int row, int col, int num)
 {
@@ -122,13 +98,7 @@ void updateVe(int row, int col, int num)
 			ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(),num));
 		}
 	}
-
-	else
-	{
-		reinitVector(row, col); //redundant
-	}
 }
-
 
 void updateDependents(int row, int col)
 {
@@ -143,8 +113,6 @@ void updateDependents(int row, int col)
 
 		else
 		{
-		//update vector
-			updateV(row, cCol, num);	
 			updateVe(row, cCol, num);	
 		}
 	}
@@ -153,7 +121,6 @@ void updateDependents(int row, int col)
 	{
 		if(cRow != row)
 		{
-			updateV(cRow, col, num);
 			updateVe(cRow, col, num);
 		}
 	}
@@ -166,7 +133,6 @@ void updateDependents(int row, int col)
 			{
 				if(j%3 != col % 3) 
 				{
-					updateV(i, col, num);
 					updateVe(i, j, num);
 				}
 			}
@@ -236,10 +202,8 @@ void mergeSolveRow(vector <int> *v2)
 						ip[row][col] = i; 
 						reinitVector(row,col);
 						updateDependents(row, col);
-						break;	
 					}
 				}
-
 			}
 		}	
 	}
