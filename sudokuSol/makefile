@@ -1,2 +1,2 @@
 $build:
-	g++ sudoku.cpp -o out.elf
+	g++ -I./include src/main.cpp src/fileRead.cpp -o out.elf

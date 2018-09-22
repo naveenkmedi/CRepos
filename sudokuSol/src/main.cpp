@@ -3,10 +3,14 @@
 #include <vector>
 #include <string>
 #include <fstream>
+
+#include "main.h"
+#include "fileRead.h"
+
+
 using namespace std;
 
-//int ip[9][9] ={9,0,8,0,3,1,0,0,0, 0,0,0,0,2,0,5,0,0,5,0,0,0,9,0,0,4,0,0,0,0,8,0,0,0,0,5,8,3,2,0,0,0,1,7,4,1,0,0,0,0,7,0,0,0,0,8,0,0,5,0,0,0,3,0,0,7,0,8,0,0,0,0,0,0,0,4,7,0,6,0,2};
-int ip[9][9];// = {0,3,5,2,9,0,8,6,4, 0,8,2,4,1,0,7,0,3, 7,6,4,3,8,0,0,9,0, 2,1,8,7,3,9,0,4,0, 0,0,0,8,0,4,2,3,0, 0,4,3,0,5,2,9,7,0, 4,0,6,5,7,1,0,0,9, 3,5,9,0,2,8,4,1,7, 8,0,0,9,0,0,5,2,6};
+int ip[9][9];
 vector<int>  v[9][9];
 vector<int>  ve[9][9];
 
@@ -38,6 +42,31 @@ void populateVe(int row, int col)
 			
 			ve[row][col].push_back(i);
 		}
+	}
+
+if(ip[row][col] != 0)
+{
+	for(int num = 1; num < 10; num++)
+	{
+		ve[row][col].push(num);
+	}
+
+	for(int num = 1; num < 10; num++)
+	{
+		//check if present in row
+		for(int cCol = 0; cCol < 9; cCol++)
+		{
+			if(ip[row][cCol] != 0)
+		//check row wise
+			for(int cCol = 0; cCol < 9; cCol++)
+			{
+				if(cCol != col)
+					if(0 != ip[row][cCol])
+						if(0 == count(v[row][col].begin(), v[row][col].end(), ip[row][cCol]))
+							v[row][col].push_back(ip[row][cCol]);
+			}
+
+}
 	}
 }
 
@@ -221,6 +250,7 @@ void mergeRow()
 		{
 			v2[row].insert(v2[row].end(), ve[row][col].begin(), ve[row][col].end());
 		}
+		//rowSolve(row);
 	}
 	mergeSolveRow(&v2[0]);
 }
@@ -236,39 +266,6 @@ void populatePoss()
 	}
 }
 
-int readFile()
-{
-	string line;
-
-	int i=0; 
-	int j=0;
-
-	ifstream ipFile("ip10c.txt");
-	if (ipFile.is_open())
-  	{
-	    while (getline(ipFile, line) )
-	    {
-	    	std::string::iterator it;
-	    	for(it = line.begin(); it != line.end(); it++)
-	      	{
-	      		if(*it>=48 && *it <= 57 )
-	      		{
-	      			ip[i][j] =  (*it)-48;
-	      			j++;
-	      			if(j == 9)
-	      			{
-	      				j = 0; 
-	      				i++;
-	      			}
-	      		}
-	         }
-	    }
-	    ipFile.close();
-	    return 0;
-  	}			
-  	cout<<"input file error\n";
-  	return 1;
-}
 
 int main()
 {	
@@ -277,7 +274,7 @@ int main()
 		populateMaps();
 		populatePoss();
 
-		for(int i = 0; i < 1; i++)
+		for(int i = 0; i < 5; i++)
 		{
 			solve(1,1);
 			mergeRow();
