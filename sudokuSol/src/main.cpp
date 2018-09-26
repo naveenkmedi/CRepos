@@ -6,21 +6,16 @@
 
 #include "main.h"
 #include "fileRead.h"
-
+#include "file2.h"
 
 using namespace std;
 
 int ip[9][9];
-vector<int>  v[9][9];
-vector<int>  ve[9][9];
+vector<int> ve[9][9];
 
-void reinitVector(int row, int col);
 void mergeColumn();
 void mergeSovleColumn(vector<int> *v2);
-void printVector(vector <int> *pv);
 void updateVe(int row, int col, int num);
-void populateVe(int row, int col);
-void populateMaps();
 void updateDependents(int row, int col);
 void solve(int row, int column);
 void printOutput();
@@ -29,82 +24,132 @@ void mergeRow();
 void populatePoss();
 
 
-void populateVe(int row, int col)
+int unsolved(int row);
+int rowSolve(int row);
+vector<int> shrinkVrow(vector<int> vRow);
+void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElements);
+void checkVe(int row, int col);
+int shrinkedSize(vector<int> vRow);
+void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements);
+void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements);
+
+
+int unsolved(int row)
 {
-	for(int i = 1; i < 10; i++)
+	int empty = 0;
+	for(int col = 0; col < 9; col++)
 	{
-		if(ip[row][col] != 0) continue;
-		int iCount = count(v[row][col].begin(), v[row][col].end(), i);
-		if(iCount == 0)
+		if(ip[row][col] == 0)
+			empty++;
+	}
+	//cout<<"reached 46 empty = "<<empty<<"\n";	
+	return empty;
+}
+
+int rowSolve(int row)
+{
+	int empty = unsolved(row);
+	if(empty < 3)
+		return 0;
+	//start with 2 at a time
+	int merged = 0;
+	vector<int> vRow;
+	int mergeCount = 0;
+	int mergElements[8] = {-1};
+
+	for(int toBeMerged = 2; toBeMerged < empty; toBeMerged++)
+	{
+		for(int col = 0; col < 8; col++)
+		{ 
+			if(ip[row][col] == 0)
+			{
+				//cout<<"reached 65\n";	
+				mergElements[mergeCount] = col;
+				mergeCount++;										
+				vRow.insert(vRow.end(), ve[row][col].begin(), ve[row][col].end());
+
+				for(int cCol = col+1; cCol < 9; cCol++)
+				{
+					if(ip[row][cCol] == 0)
+					{	
+						//cout<<"reached 73\t"<<row<<cCol<<"\t";		
+						mergElements[mergeCount] = cCol;
+						mergeCount++;
+						vRow.insert(vRow.end(), ve[row][cCol].begin(), ve[row][cCol].end());
+						//cout<<"mergeCount = "<<mergeCount<<" -toBeMerged = "<<toBeMerged<<" empty = "<<empty<<"\t"<<endl;
+						if(mergeCount == toBeMerged)
+						{
+							cout<<"reached 80  row = "<<row<<" column = "<<cCol<<" toBeMerged = "<<toBeMerged;
+							for(int i = 0; i< toBeMerged; i++)
+							{
+								cout<<"element = "<<mergElements[i]<<"  ";
+							}cout<<endl;
+
+							if(shrinkedSize(vRow) == toBeMerged)
+							{					
+								cout<<row<<cCol<<" merge = "<<toBeMerged<<" reached 84\t";
+								for(int i = 0; i< toBeMerged; i++)
+								{
+									cout<<"element = "<<mergElements[i]<<"  ";
+								}cout<<endl;
+								vector<int> shrinkedVector = shrinkVrow(vRow); printVector(&shrinkedVector);				
+								updateRowElements(row, vRow, &mergeCount, &mergElements[0]);
+								updateVRow(row, &vRow, &mergeCount, &mergElements[0]);	
+							}							
+						}
+					}
+				}
+			}				
+			reinitvRow(&vRow, &mergeCount, &mergElements[0]);				
+		}
+		reinitvRow(&vRow, &mergeCount, &mergElements[0]);	
+	}
+}
+
+vector<int> shrinkVrow(vector<int> vRow)
+{
+	for(int num = 0; num < 9; num++)
+	{
+		int tempCount = count(vRow.begin(), vRow.end(), num);
+		while(tempCount > 1)
 		{
-			int rep = count(ve[row][col].begin(), ve[row][col].end(), i);
-			if(rep != 0) continue;
-			
-			ve[row][col].push_back(i);
+			vRow.erase(std::find(vRow.begin(), vRow.end(),num));
+			tempCount--;
 		}
 	}
-
-if(ip[row][col] != 0)
-{
-	for(int num = 1; num < 10; num++)
-	{
-		ve[row][col].push(num);
-	}
-
-	for(int num = 1; num < 10; num++)
-	{
-		//check if present in row
-		for(int cCol = 0; cCol < 9; cCol++)
-		{
-			if(ip[row][cCol] != 0)
-		//check row wise
-			for(int cCol = 0; cCol < 9; cCol++)
-			{
-				if(cCol != col)
-					if(0 != ip[row][cCol])
-						if(0 == count(v[row][col].begin(), v[row][col].end(), ip[row][cCol]))
-							v[row][col].push_back(ip[row][cCol]);
-			}
-
-}
-	}
+	return vRow;
 }
 
-void populateMaps()
+void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElements)
 {
-	for(int row = 0; row < 9; row++)
+	vector<int> shrinkedVector = shrinkVrow(vRow);
+	
+	for(int col = 0; col < 9; col++)
 	{
-		for(int col = 0; col < 9; col++)
+		if(ip[row][col] == 0)
 		{
-		//check row wise
-			for(int cCol = 0; cCol < 9; cCol++)
+			int columnCheck = 0;
+			//int count1 = 0;
+			for(int count1 = 0; count1 < *mergeCount; count1++)//9 may not be the correct number
 			{
-				if(cCol != col)
-					if(0 != ip[row][cCol])
-						if(0 == count(v[row][col].begin(), v[row][col].end(), ip[row][cCol]))
-							v[row][col].push_back(ip[row][cCol]);
-			}
-
-			//column wise		
-			for(int cRow = 0; cRow < 9; cRow++)
-			{	if(cRow != row)
-					if(0 != ip[cRow][col])
-						if(0 == count(v[row][col].begin(), v[row][col].end(), ip[cRow][col]))
-							v[row][col].push_back(ip[cRow][col]);
-			}
-			//block wise
-			for(int i = 3*(row/3); i < 3*(row/3) + 3; i++)
-			{
-				if(i%3 != row%3) 
+				//cout<<row<<col<<"reached 123\n";
+				if(col == mergElements[count1])
 				{
-					for(int j = 3*(col/3); j < 3*(col/3) + 3; j++)
-					{
-						if(j%3 != col % 3) 
-						{
-							if(0 != ip[i][j])
-								if(0 == count(v[row][col].begin(), v[row][col].end(), ip[i][j]))
-									v[row][col].push_back(ip[i][j]);
-						}
+					columnCheck++; break;	//check next element
+				}
+			}
+			if(columnCheck == 0)
+			{
+				//cout<<row<<col<<"reached 134 -   ";cout<<shrinkedVector.size()<<"\n";
+				//cout<<shrinkedVector.size();
+				for(vector<int>::iterator num = shrinkedVector.begin(); num != shrinkedVector.end(); num++)
+				{
+									//cout<<row<<col<<"reached 137\n";
+					if(0 < count(ve[row][col].begin(), ve[row][col].end(), *num))		
+					{									//cout<<row<<col<<"reached 140\n";
+						ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), *num));
+						checkVe(row, col);
+						//cout<<row<<col<<"reached 143\n";printVector(&shrinkedVector);
 					}
 				}
 			}
@@ -112,11 +157,121 @@ void populateMaps()
 	}
 }
 
-void reinitVector(int row, int col)
-{	
-	while(ve[row][col].size() != 0)
-		ve[row][col].pop_back();
+void checkVe(int row, int col)
+{
+	if(ve[row][col].size() == 1)
+	{
+		if(ip[row][col] == 0)
+		{
+			std::vector<int>::iterator it = ve[row][col].begin();
+			ip[row][col] = *it;
+			ve[row][col].pop_back();
+			updateDependents(row, col);
+			//solve(1,1);	
+		}
+	}
 }
+
+int shrinkedSize(vector<int> vRow)
+{
+	for(int num = 0; num < 9; num++)
+	{
+		int tempCount = count(vRow.begin(), vRow.end(), num);
+		while(tempCount > 1)
+		{
+			vRow.erase(std::find(vRow.begin(), vRow.end(),num));
+			tempCount--;
+		}
+	}
+	return vRow.size();
+}
+
+void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements)
+{
+	//cout<<"reached 168(reinitvRow)- "<<endl;;
+
+	while(vRow->size() != 0)
+		vRow->pop_back();
+	for(int count = 0; count < 8; count++)
+	{
+		mergElements[count] = -1;
+	}
+	*mergeCount = 0;
+}
+
+//remove the last merged element
+void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements)
+{
+	//cout<<"reached 179(updateVRow)- "<<row<<endl;;
+	int col = mergElements[*mergeCount];
+	vector<int> element = ve[row][col];
+	for(int count = element.size(); count > 0; count--)
+	{
+		vRow->pop_back();		
+	}	
+	mergElements[*mergeCount] = -1;
+	*mergeCount--;
+}
+
+void populatePoss()
+{
+	for(int row =0; row<9; row++)
+	{
+		for(int col = 0; col < 9; col++)
+		{
+			if(ip[row][col] == 0)
+			{
+					//initiate with 1-9
+				for(int num = 1; num < 10; num++)
+				{
+					ve[row][col].push_back(num);
+				}
+					//check if present in row
+				for(int cCol = 0; cCol < 9; cCol++)
+				{			
+					if(ip[row][cCol] != 0)
+					{
+						if(cCol != col)
+						{	
+							if(0 < count(ve[row][col].begin(), ve[row][col].end(), ip[row][cCol]))		
+							ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), ip[row][cCol]));
+						}	
+					}	
+				}
+
+				//check if present in column
+				for(int rRow = 0; rRow < 9; rRow++)
+				{
+					if(ip[rRow][col] != 0)
+					{
+						if(rRow != row)
+						{	
+							if(0 < count(ve[row][col].begin(), ve[row][col].end(), ip[rRow][col]))
+								ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), ip[rRow][col]));
+						}	
+					}	
+				}
+
+				//check if present in block
+				for(int cCol = (col/3)*3; cCol < (col/3)*3+3; cCol++)
+				{
+					for(int rRow = (row/3)*3; rRow < (row/3)*3 +3; rRow++)
+					{
+						if(ip[rRow][cCol] != 0)
+						{
+							if((rRow != row%3) && (cCol != col%3))
+							{
+								if(0 < count(ve[row][col].begin(), ve[row][col].end(), ip[rRow][cCol]))
+									ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), ip[rRow][cCol]));
+							}	
+						}	
+					}
+				}
+			}
+		}		
+	}
+}
+
 
 void updateVe(int row, int col, int num)
 {
@@ -139,7 +294,7 @@ void updateDependents(int row, int col)
 	{	
 		if(cCol == col) 
 		{
-			reinitVector(row, cCol);
+			reinitVector(&ve[row][col]);
 		}
 
 		else
@@ -164,7 +319,7 @@ void updateDependents(int row, int col)
 			{
 				if(j%3 != col % 3) 
 				{
-					updateVe(i, j, num);
+						(i, j, num);
 				}
 			}
 		}
@@ -181,9 +336,10 @@ void solve(int row, int column)
 			{	
 				if(ve[count1][count2].size() == 1)
 				{
+					//cout<<count1<<count2<<"single \n";
 					vector<int>::iterator it = ve[count1][count2].begin();
 					ip[count1][count2] = *it;
-					reinitVector(count1, count2);
+					reinitVector(&ve[count1][count2]);
 					updateDependents(count1, count2);
 				}
 			}
@@ -205,15 +361,6 @@ void printOutput()
 	}
 }
 
-void printVector(vector <int> *pv)
-{
-	vector<int>::iterator itNum = pv->begin();
-	for(itNum; itNum != pv->end(); itNum++)
-	{
-		cout<<*itNum<<"\t";
-	}
-	cout<<endl;
-}
 
 void mergeSolveRow(vector <int> *v2)
 {
@@ -229,9 +376,13 @@ void mergeSolveRow(vector <int> *v2)
 					int possible = count(ve[row][col].begin(),ve[row][col].end(), i);
 					if(1 == possible)
 					{
-						//found
+						if(row == 7 && col == 0)
+						{
+							cout<<"found single\n";
+							printVector(&ve[row][col]);
+						}
 						ip[row][col] = i; 
-						reinitVector(row,col);
+						reinitVector(&ve[row][col]);
 						updateDependents(row, col);
 					}
 				}
@@ -255,30 +406,34 @@ void mergeRow()
 	mergeSolveRow(&v2[0]);
 }
 
-void populatePoss()
-{
-	for(int row = 0; row < 9; row++)
-	{
-		for(int col = 0; col < 9; col++)
-		{
-			populateVe(row, col);
-		}
-	}
-}
-
-
 int main()
 {	
 	if(0 == readFile())
 	{
-		populateMaps();
 		populatePoss();
-
-		for(int i = 0; i < 5; i++)
+		printOutput();
+		for(int i = 0; i < 10; i++)
 		{
 			solve(1,1);
 			mergeRow();
 		}
+
+		cout<<"after solving\n";
+		for(int col = 0; col < 9; col++)
+		{
+			printVector(&ve[5][col]);
+		}
+		printOutput();
+
+		for(int row = 1; row < 10; row++)
+		{
+			;rowSolve(row);
+						solve(1,1);
+			mergeRow();
+
+		}
+
+		cout<<"after solving\n";
 		printOutput();
 	}
 }

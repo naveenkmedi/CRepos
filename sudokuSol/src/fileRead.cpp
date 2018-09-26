@@ -12,10 +12,11 @@ int readFile()
 
 	int i=0; 
 	int j=0;
-
-	ifstream ipFile("s10a.txt");
+char* fileName = "s9a.txt";
+	ifstream ipFile(fileName);
 	if(ipFile.is_open())
   	{
+  		cout<<"input file name - "<<fileName<<"	\n";
 	    while (getline(ipFile, line) )
 	    {
 	    	std::string::iterator it;
