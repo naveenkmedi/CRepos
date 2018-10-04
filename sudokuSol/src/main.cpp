@@ -139,7 +139,6 @@ void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElem
 			//int count1 = 0;
 			for(int count1 = 0; count1 < *mergeCount; count1++)//9 may not be the correct number
 			{
-				//cout<<row<<col<<"reached 123\n";
 				if(col == mergElements[count1])
 				{
 					columnCheck++; break;	//check next element
@@ -147,16 +146,12 @@ void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElem
 			}
 			if(columnCheck == 0)
 			{
-				//cout<<row<<col<<"reached 134 -   ";cout<<shrinkedVector.size()<<"\n";
-				//cout<<shrinkedVector.size();
 				for(vector<int>::iterator num = shrinkedVector.begin(); num != shrinkedVector.end(); num++)
 				{
-									//cout<<row<<col<<"reached 137\n";
 					if(0 < count(ve[row][col].begin(), ve[row][col].end(), *num))		
 					{									//cout<<row<<col<<"reached 140\n";
 						ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), *num));
 						checkVe(row, col);
-						//cout<<row<<col<<"reached 143\n";printVector(&shrinkedVector);
 					}
 				}
 			}
@@ -343,7 +338,6 @@ void solve(int row, int column)
 			{	
 				if(ve[count1][count2].size() == 1)
 				{
-					//cout<<count1<<count2<<"single \n";
 					vector<int>::iterator it = ve[count1][count2].begin();
 					ip[count1][count2] = *it;
 					reinitVector(&ve[count1][count2]);
@@ -383,8 +377,6 @@ void mergeSolveRow(vector <int> *v2)
 					int possible = count(ve[row][col].begin(),ve[row][col].end(), i);
 					if(1 == possible)
 					{
-						// cout<<"cRow = "<<row<<" col = "<<col<<" i = "<<i<<"\t"; cout<<"vr --";printVector(&v2[row]);
-						// cout<<"Row - ve ---";printVector(&ve[row][col]);
 						ip[row][col] = i; 
 						reinitVector(&ve[row][col]);
 						updateDependents(row, col);
@@ -425,9 +417,6 @@ void mergeSolveColumn(vector <int> *vc)
 					int possible = count(ve[row][col].begin(),ve[row][col].end(), i);
 					if(1 == possible)
 					{
-						// cout<<"row = "<<row<<" cCol = "<<col<<" i = "<<i<<"   singleCount = "<<isSingle<<"\t"; 
-						// cout<<"vc --";printVector(&vc[col]);
-						// cout<<"column - ve ---";printVector(&ve[row][col]);
 						ip[row][col] = i; 
 						reinitVector(&ve[row][col]);
 						updateDependents(row, col);
@@ -466,8 +455,6 @@ void mergeSolveBlock(vector <int> *vb, int row, int col)
 					int possible = count(ve[cRow][cCol].begin(), ve[cRow][cCol].end(), i);
 					if(1 == possible)
 					{
-						// cout<<"row = "<<cRow<<" col = "<<cCol<<" i = "<<i<<"\t"; cout<<"vb --";printVector(vb);
-						// cout<<"block - ve ---";printVector(&ve[cRow][cCol]);
 						ip[cRow][cCol] = i; 
 						reinitVector(&ve[cRow][cCol]);
 						updateDependents(cRow, cCol);
@@ -498,26 +485,13 @@ void mergeBlock()
 		}
 	}
 
-	// for(int row = 0; row < 3; row++)
-	// {
-	// 	for(int col = 0; col < 3; col++)
-	// 	{		
-	// 		 cout<<"vb --"<<"row = "<<row<<"col = "<<col<<"   ";
-	// 		// std::vector<int> v = shrinkVrow(vb[row][col]);
-
-	// 		printVector(&vb[row][col]);
-	// 	}
-	// }
-
-for(int row = 0; row < 3; row++)
+	for(int row = 0; row < 3; row++)
 	{
 		for(int col = 0; col < 3; col++)
 		{		
 			mergeSolveBlock(&vb[row][col], row, col);
 		}
 	}
-
-	// cout<<"\n\n\n";
 }
 
 int main()
