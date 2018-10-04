@@ -9,7 +9,7 @@ void printVector(vector <int> *pv)
 	vector<int>::iterator itNum = pv->begin();
 	for(itNum; itNum != pv->end(); itNum++)
 	{
-		cout<<*itNum<<"\t";
+		cout<<*itNum<<"  ";
 	}
 }
 	cout<<endl;

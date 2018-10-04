@@ -12,8 +12,9 @@ int readFile()
 
 	int i=0; 
 	int j=0;
-char* fileName = "s9a.txt";
+	char* fileName = "12c.txt";
 	ifstream ipFile(fileName);
+	
 	if(ipFile.is_open())
   	{
   		cout<<"input file name - "<<fileName<<"	\n";
