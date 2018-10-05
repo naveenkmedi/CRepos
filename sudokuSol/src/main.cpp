@@ -45,7 +45,6 @@ int unsolved(int row)
 		if(ip[row][col] == 0)
 			empty++;
 	}
-	//cout<<"reached 46 empty = "<<empty<<"\n";	
 	return empty;
 }
 
@@ -66,7 +65,6 @@ int rowSolve(int row)
 		{ 
 			if(ip[row][col] == 0)
 			{
-				//cout<<"reached 65\n";	
 				mergElements[mergeCount] = col;
 				mergeCount++;										
 				vRow.insert(vRow.end(), ve[row][col].begin(), ve[row][col].end());
@@ -75,30 +73,15 @@ int rowSolve(int row)
 				{
 					if(ip[row][cCol] == 0)
 					{	
-						//cout<<"reached 73\t"<<row<<cCol<<"\t";		
 						mergElements[mergeCount] = cCol;
 						mergeCount++;
 						vRow.insert(vRow.end(), ve[row][cCol].begin(), ve[row][cCol].end());
-						//cout<<"mergeCount = "<<mergeCount<<" -toBeMerged = "<<toBeMerged<<" empty = "<<empty<<"\t"<<endl;
 						if(mergeCount == toBeMerged)
 						{
-							// cout<<"reached 80  row = "<<row<<" column = "<<cCol<<" toBeMerged = "<<toBeMerged<<"\t";
-							// for(int i = 0; i< toBeMerged; i++)
-							// {
-							// 	cout<<"  element = "<<mergElements[i]<<"  ";
-							// }
-							// cout<<endl;
-							vector<int> shrinkedVector = shrinkVrow(vRow);
-							// cout<<"shrinked vector   ";
-							//printVector(&shrinkedVector);				
 							if(shrinkedSize(vRow) == toBeMerged)
-							{					
-								cout<<row<<cCol<<" merge = "<<toBeMerged<<" reached 84\t";
-								for(int i = 0; i< toBeMerged; i++)
-								{
-									cout<<"element = "<<mergElements[i]<<"  ";
-								}cout<<endl;
-								printVector(&shrinkedVector);				
+							{			
+								cout<<"found singel\n";		
+								vector<int> shrinkedVector = shrinkVrow(vRow);
 								updateRowElements(row, vRow, &mergeCount, &mergElements[0]);
 								updateVRow(row, &vRow, &mergeCount, &mergElements[0]);	
 							}							
@@ -123,7 +106,6 @@ vector<int> shrinkVrow(vector<int> vRow)
 			tempCount--;
 		}
 	}
-	//printVector(&vRow);
 	return vRow;
 }
 
@@ -136,7 +118,6 @@ void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElem
 		if(ip[row][col] == 0)
 		{
 			int columnCheck = 0;
-			//int count1 = 0;
 			for(int count1 = 0; count1 < *mergeCount; count1++)//9 may not be the correct number
 			{
 				if(col == mergElements[count1])
@@ -149,7 +130,7 @@ void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElem
 				for(vector<int>::iterator num = shrinkedVector.begin(); num != shrinkedVector.end(); num++)
 				{
 					if(0 < count(ve[row][col].begin(), ve[row][col].end(), *num))		
-					{									//cout<<row<<col<<"reached 140\n";
+					{									
 						ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), *num));
 						checkVe(row, col);
 					}
@@ -169,14 +150,13 @@ void checkVe(int row, int col)
 			ip[row][col] = *it;
 			ve[row][col].pop_back();
 			updateDependents(row, col);
-			//solve(1,1);	
 		}
 	}
 }
 
 int shrinkedSize(vector<int> vRow)
 {
-	for(int num = 0; num < 9; num++)
+	for(int num = 1; num < 10; num++)
 	{
 		int tempCount = count(vRow.begin(), vRow.end(), num);
 		while(tempCount > 1)
@@ -190,8 +170,6 @@ int shrinkedSize(vector<int> vRow)
 
 void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements)
 {
-	//cout<<"reached 168(reinitvRow)- "<<endl;;
-
 	while(vRow->size() != 0)
 		vRow->pop_back();
 	for(int count = 0; count < 8; count++)
@@ -204,7 +182,6 @@ void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements)
 //remove the last merged element
 void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements)
 {
-	//cout<<"reached 179(updateVRow)- "<<row<<endl;;
 	int col = mergElements[*mergeCount];
 	vector<int> element = ve[row][col];
 	for(int count = element.size(); count > 0; count--)
@@ -500,25 +477,38 @@ int main()
 	{
 		populatePoss();
 		printOutput();
-		for(int i = 0; i < 200; i++)
+
+		for(int i = 0; i < 100; i++)
 		{
+		for(int row = 0; row < 9; row++)
+		{
+			//rowSolve(row); //not yet working
 			solve(1,1);
 			mergeRow();
 			mergeColumn();
 			mergeBlock();
 		}
+	}
 
-		// cout<<"after solving\n";
-		// printOutput();
-		
-		// for(int row = 1; row < 10; row++)
-		// {
-		// 	//rowSolve(row); not yet working
-		// 	solve(1,1);
-		// 	mergeRow();
-		// 	mergeColumn();
-		// 	mergeBlock();
-		// }
+
+
+		cout<<"after solving\n";
+		printOutput();
+
+
+			for(int i = 0; i < 100; i++)
+		{
+		for(int row = 0; row < 9; row++)
+		{
+			rowSolve(row); //not yet working
+			solve(1,1);
+			mergeRow();
+			mergeColumn();
+			mergeBlock();
+		}
+	}
+
+	
 
 		cout<<"after solving\n";
 		printOutput();
