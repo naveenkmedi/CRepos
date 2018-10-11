@@ -190,15 +190,14 @@ void solve(int row, int column)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {	
-	if(0 == readFile())
+	if(0 == readFile(argv[1]))
 	{
 		populatePoss();
 		printOutput();
 
-		cout<<"202";
-		for(int i = 0; i < 100; i++)
+		for(int i = 0; i < 2; i++)
 		{
 			for(int row = 0; row < 9; row++)
 			{
@@ -206,24 +205,57 @@ int main()
 				mergeRow();
 				mergeColumn();
 				mergeBlock();
-				rowSolve(row); //not yet working
-				columnSolve(row);
+				//rowSolve(row); //not yet working
+				//columnSolve(row);
 			}
 		}	
 
-		// cout<<"after solving\n";
-		// printOutput();
-
-
-		// for(int i = 0; i < 3; i++)
-		// {
-		// 	for(int j = 0; j < 3; j++)
-		// 	{
-		// 		blockSolve(i, j); //not yet working
-		// 	}
-		// }
-
-		cout<<"after solving block\n";
+		cout<<"after solving\n";
 		printOutput();
+
+		int arg = atoi(argv[2]);
+
+		if(arg >= 1)
+		{
+			for(int i = 0; i < 5; i++)
+			{
+				for(int row = 0; row < 9; row++)
+				{
+					solve(1,1);
+					mergeRow();
+					mergeColumn();
+					mergeBlock();
+
+					if(arg >= 2)
+					{
+						columnSolve(row);
+					}
+
+					// if(arg >= 2)
+					// {
+						rowSolve(row); //not yet working
+					// }
+				}
+			}
+			cout<<"after row and column solving\n";
+			printOutput();
+		}	
+
+		if(arg >= 3)
+		{
+			for(int repeat = 0; repeat <1; repeat++)
+			{
+				for(int i = 0; i < 3; i++)
+				{
+					for(int j = 0; j < 3; j++)
+					{
+						blockSolve(i, j); //not yet working
+					}
+				}
+			}
+
+			cout<<"after solving block\n";
+			printOutput();
+		}
 	}
 }

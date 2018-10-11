@@ -30,27 +30,26 @@ int columnSolve(int col)
 						vCol.insert(vCol.end(), ve[cRow][col].begin(), ve[cRow][col].end());
 						// cout<<"column 31\n";
 						if(mergeCount == toBeMerged)
-						{
-							// cout<<"Merge count = "<<mergeCount<<"    \t";		
-							// for(int k = 0; k<mergeCount; k++)
-							// {
-							// 		cout<<mergElements[k]<<"\t";
-							// }
-							// cout<<endl;								
-							
+						{							
 							vector<int> shrinkedVector = shrinkVector(vCol);
 							// printVector(&shrinkedVector);
 							// cout<<"column 43\n";
 								
 							if(shrinkedSize(vCol) == toBeMerged)
 							{			
-								cout<<"found singel\n";		
+								cout<<"found single in col = "<<col<<"\nelements \t";		
+								vector<int> shrinkedVector = shrinkVector(vCol);
+								for(int k = 0; k < mergeCount; k++)
+								{
+									cout<<mergElements[k]<<"\t";
+								}
+								cout<<"\nshrinkedVector  ";
+								printVector(&shrinkedVector);
+
 								updateColumnElements(col, vCol, &mergeCount, &mergElements[0]);
-								cout<<"line 82 mergeCount = "<<mergeCount<<endl;
-								cout<<endl;
 								updateVColumn(col, &vCol, &mergeCount, &mergElements[0]);	
-								cout<<"column 52\n";
-							}							
+							}						
+							updateVColumn(col, &vCol, &mergeCount, &mergElements[0]);		
 						}
 					}
 				}
@@ -60,6 +59,55 @@ int columnSolve(int col)
 		reinitvRow(&vCol, &mergeCount, &mergElements[0]);	
 	}
 }
+
+
+
+// if(shrinkedSize(vRow) == toBeMerged)
+// 							{			
+// 								cout<<"found single in row = "<<row<<"\nelements \t";		
+// 								vector<int> shrinkedVector = shrinkVector(vRow);
+// 								for(int k = 0; k < mergeCount; k++)
+// 								{
+// 									cout<<mergElements[k]<<"\t";
+// 								}
+// 								cout<<"\nshrinkedVector  ";
+// 								printVector(&shrinkedVector);
+// 								updateRowElements(row, vRow, &mergeCount, &mergElements[0]);
+// 								updateVRow(row, &vRow, &mergeCount, &mergElements[0]);	
+// 							}	
+
+void updateVColumn(int col, vector<int> (*vColumn), int *mergeCount, int *mergElements)
+{
+	int row = mergElements[(*mergeCount) -1];
+	cout<<"\t row = "<< row<<"\n";
+	cout<<"row = "<<row<<"\t";
+	vector<int> element = ve[row][col];
+
+	for(int count = element.size(); count > 0; count--)
+	{
+		vColumn->pop_back();		
+	}	
+	mergElements[(*mergeCount) -1] = -1;
+	*mergeCount--;
+	 cout<<"   line 156\n";
+}
+
+
+// //remove the last merged element
+// void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements)
+// {
+// 	int col = mergElements[(*mergeCount)-1];
+// 	cout<<"col = "<<col<<endl; 
+// 	vector<int> element = ve[row][col];
+// 	for(int count = element.size(); count > 0; count--)
+// 	{
+// 		vRow->pop_back();		
+// 	}	
+// 	mergElements[(*mergeCount) -1] = -1;
+// 	(*mergeCount)--;
+// }
+
+
 
 
 int unsolvedCountColumn(int col)
@@ -110,27 +158,7 @@ void updateColumnElements(int col, vector<int> vColumn, int* mergeCount, int *me
 	}
 }
 
-void updateVColumn(int col, vector<int> (*vColumn), int *mergeCount, int *mergElements)
-{
-	for(int i = 0; i <= *mergeCount; i++)
-		cout<<" element = "<<mergElements[i];
 
-	cout<<"line 147   mergeCount = "<<*mergeCount<<endl;
-	int row = mergElements[(*mergeCount) -1];
-	// cout<<"line 149\t row = "<< row<<"\t";
-	// cout<<"size = "<<ve[row][col].size()<<"\t";
-	cout<<"row = "<<row<<"\t";
-	vector<int> element = ve[row][col];
-	cout<<"ve ---  "; printVector(&ve[row][col]);
-	cout<<"vColumn ---- "; printVector(vColumn);
-	for(int count = element.size(); count > 0; count--)
-	{
-		vColumn->pop_back();		
-	}	
-	mergElements[*mergeCount] = -1;
-	*mergeCount--;
-	 cout<<"   line 156\n";
-}
 
 void reinitvColumn(vector<int> *vColumn, int *mergeCount, int *mergElements)
 {

@@ -6,14 +6,16 @@
 
 using namespace std;
 
-int readFile()
+int readFile(char* fileName)
 {
 	string line;
 
 	int i=0; 
 	int j=0;
-	char* fileName = "15a.txt";
+	//fileName.append() = "14c.txt";
+	// const char* fileName1 = fileName.c_str();
 	ifstream ipFile(fileName);
+
 	
 	if(ipFile.is_open())
   	{
