@@ -12,7 +12,7 @@ int readFile()
 
 	int i=0; 
 	int j=0;
-	char* fileName = "12c.txt";
+	char* fileName = "15a.txt";
 	ifstream ipFile(fileName);
 	
 	if(ipFile.is_open())

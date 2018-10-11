@@ -5,140 +5,27 @@
 #include <fstream>
 
 #include "main.h"
-#include "fileRead.h"
-#include "file2.h"
 
 using namespace std;
 
 int ip[9][9];
 vector<int> ve[9][9];
 
-void mergeColumn();
-void updateVe(int row, int col, int num);
-void updateDependents(int row, int col);
-void solve(int row, int column);
-void printOutput();
-void mergeSolveRow(vector <int> *v2);
-void mergeRow();
-void populatePoss();
-void mergeSolveColumn(vector <int> *vc);
-void mergeColumn();
-void mergeSolveBlock(vector <int> *vb, int row, int col);
-void mergeBlock();
 
-
-int unsolved(int row);
-int rowSolve(int row);
-vector<int> shrinkVrow(vector<int> vRow);
-void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElements);
-void checkVe(int row, int col);
-int shrinkedSize(vector<int> vRow);
-void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements);
-void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements);
-
-
-int unsolved(int row)
-{
-	int empty = 0;
-	for(int col = 0; col < 9; col++)
-	{
-		if(ip[row][col] == 0)
-			empty++;
-	}
-	return empty;
-}
-
-int rowSolve(int row)
-{
-	int empty = unsolved(row);
-	if(empty < 3)
-		return 0;
-	//start with 2 at a time
-	int merged = 0;
-	vector<int> vRow;
-	int mergeCount = 0;
-	int mergElements[8] = {-1};
-
-	for(int toBeMerged = 2; toBeMerged < empty; toBeMerged++)
-	{
-		for(int col = 0; col < 8; col++)
-		{ 
-			if(ip[row][col] == 0)
-			{
-				mergElements[mergeCount] = col;
-				mergeCount++;										
-				vRow.insert(vRow.end(), ve[row][col].begin(), ve[row][col].end());
-
-				for(int cCol = col+1; cCol < 9; cCol++)
-				{
-					if(ip[row][cCol] == 0)
-					{	
-						mergElements[mergeCount] = cCol;
-						mergeCount++;
-						vRow.insert(vRow.end(), ve[row][cCol].begin(), ve[row][cCol].end());
-						if(mergeCount == toBeMerged)
-						{
-							if(shrinkedSize(vRow) == toBeMerged)
-							{			
-								cout<<"found singel\n";		
-								vector<int> shrinkedVector = shrinkVrow(vRow);
-								updateRowElements(row, vRow, &mergeCount, &mergElements[0]);
-								updateVRow(row, &vRow, &mergeCount, &mergElements[0]);	
-							}							
-						}
-					}
-				}
-			}				
-			reinitvRow(&vRow, &mergeCount, &mergElements[0]);				
-		}
-		reinitvRow(&vRow, &mergeCount, &mergElements[0]);	
-	}
-}
-
-vector<int> shrinkVrow(vector<int> vRow)
+vector<int> shrinkVector(vector<int> v)
 {
 	for(int num = 1; num < 10; num++)
 	{
-		int tempCount = count(vRow.begin(), vRow.end(), num);
+		int tempCount = count(v.begin(), v.end(), num);
 		while(tempCount > 1)
 		{
-			vRow.erase(std::find(vRow.begin(), vRow.end(),num));
+			v.erase(std::find(v.begin(), v.end(),num));
 			tempCount--;
 		}
 	}
-	return vRow;
+	return v;
 }
 
-void updateRowElements(int row, vector<int> vRow, int* mergeCount, int *mergElements)
-{
-	vector<int> shrinkedVector = shrinkVrow(vRow);
-	
-	for(int col = 0; col < 9; col++)
-	{
-		if(ip[row][col] == 0)
-		{
-			int columnCheck = 0;
-			for(int count1 = 0; count1 < *mergeCount; count1++)//9 may not be the correct number
-			{
-				if(col == mergElements[count1])
-				{
-					columnCheck++; break;	//check next element
-				}
-			}
-			if(columnCheck == 0)
-			{
-				for(vector<int>::iterator num = shrinkedVector.begin(); num != shrinkedVector.end(); num++)
-				{
-					if(0 < count(ve[row][col].begin(), ve[row][col].end(), *num))		
-					{									
-						ve[row][col].erase(std::find(ve[row][col].begin(), ve[row][col].end(), *num));
-						checkVe(row, col);
-					}
-				}
-			}
-		}
-	}
-}
 
 void checkVe(int row, int col)
 {
@@ -168,29 +55,6 @@ int shrinkedSize(vector<int> vRow)
 	return vRow.size();
 }
 
-void reinitvRow(vector<int> *vRow, int *mergeCount, int *mergElements)
-{
-	while(vRow->size() != 0)
-		vRow->pop_back();
-	for(int count = 0; count < 8; count++)
-	{
-		mergElements[count] = -1;
-	}
-	*mergeCount = 0;
-}
-
-//remove the last merged element
-void updateVRow(int row, vector<int> (*vRow), int *mergeCount, int *mergElements)
-{
-	int col = mergElements[*mergeCount];
-	vector<int> element = ve[row][col];
-	for(int count = element.size(); count > 0; count--)
-	{
-		vRow->pop_back();		
-	}	
-	mergElements[*mergeCount] = -1;
-	*mergeCount--;
-}
 
 void populatePoss()
 {
@@ -325,151 +189,6 @@ void solve(int row, int column)
 	}
 }
 
-void printOutput()
-{
-	for(int count = 0; count < 9; count++)
-	{
-		for(int count2 = 0; count2 < 9; count2++)
-		{
-			cout<<ip[count][count2]<<" ";
-			if(count2 % 3 == 2) cout<<" ";
-		}
-		cout<<"\n";
-		if(count % 3 == 2) cout<<endl;
-	}
-}
-
-
-void mergeSolveRow(vector <int> *v2)
-{
-	for(int row = 0; row < 9; row++)
-	{
-		for(int i = 1; i < 10; i++)
-		{
-			if(1 == count(v2[row].begin(),v2[row].end(), i))
-			{
-				//find which one has it
-				for(int col = 0; col < 9; col++)
-				{
-					int possible = count(ve[row][col].begin(),ve[row][col].end(), i);
-					if(1 == possible)
-					{
-						ip[row][col] = i; 
-						reinitVector(&ve[row][col]);
-						updateDependents(row, col);
-					}
-				}
-			}
-		}	
-	}
-}
-
-void mergeRow()
-{
-	vector<int> v2[9];
-	for(int row = 0; row < 9; row++)
-	{
-		v2[row].clear();
-		for(int col = 0; col < 9; col++)
-		{
-			v2[row].insert(v2[row].end(), ve[row][col].begin(), ve[row][col].end());
-		}
-	}
-	mergeSolveRow(&v2[0]);
-}
-
-void mergeSolveColumn(vector <int> *vc)
-{
-	int isSingle = 0;
-	for(int col = 0; col < 9; col++)
-	{
-		for(int i = 1; i < 10; i++)
-		{
-			isSingle = 0;
-			isSingle = count(vc[col].begin(),vc[col].end(), i);
-			if(isSingle == 1)
-			{
-				for(int row = 0; row < 9; row++)
-				{
-					int possible = count(ve[row][col].begin(),ve[row][col].end(), i);
-					if(1 == possible)
-					{
-						ip[row][col] = i; 
-						reinitVector(&ve[row][col]);
-						updateDependents(row, col);
-					}
-				}
-			}
-		}	
-	}
-}
-
-void mergeColumn()
-{
-	vector<int> vc[9];
-	for(int col = 0; col < 9; col++)
-	{
-		vc[col].clear();
-		for(int row = 0; row < 9; row++)
-		{
-			vc[col].insert(vc[col].end(), ve[row][col].begin(), ve[row][col].end());
-		}
-	}
-	mergeSolveColumn(&vc[0]);
-}
-
-void mergeSolveBlock(vector <int> *vb, int row, int col)
-{
-	for(int i = 1; i < 10; i++)
-	{
-		if(1 == count(vb->begin(),vb->end(), i))
-		{
-			//find which one has it
-			for(int cRow = 3*(row); cRow < 3*(row)+ 3; cRow++)
-			{
-				for(int cCol = 3*(col); cCol < 3*(col) + 3; cCol++)
-				{		
-					int possible = count(ve[cRow][cCol].begin(), ve[cRow][cCol].end(), i);
-					if(1 == possible)
-					{
-						ip[cRow][cCol] = i; 
-						reinitVector(&ve[cRow][cCol]);
-						updateDependents(cRow, cCol);
-					}
-				}
-			}
-		}
-	}	
-}
-
-
-void mergeBlock()
-{
-	vector<int> vb[3][3];
-	for(int row = 0; row < 9; row++)
-	{
-		for(int col = 0; col < 9; col++)
-		{
-			vb[(row/3)][(col/3)].clear();
-		}
-	}
-
-	for(int row = 0; row < 9; row++)
-	{
-		for(int col = 0; col < 9; col++)
-		{
-			vb[(row/3)][(col/3)].insert(vb[(row/3)][(col/3)].end(), ve[row][col].begin(), ve[row][col].end());
-		}
-	}
-
-	for(int row = 0; row < 3; row++)
-	{
-		for(int col = 0; col < 3; col++)
-		{		
-			mergeSolveBlock(&vb[row][col], row, col);
-		}
-	}
-}
 
 int main()
 {	
@@ -478,41 +197,33 @@ int main()
 		populatePoss();
 		printOutput();
 
+		cout<<"202";
 		for(int i = 0; i < 100; i++)
 		{
-		for(int row = 0; row < 9; row++)
-		{
-			//rowSolve(row); //not yet working
-			solve(1,1);
-			mergeRow();
-			mergeColumn();
-			mergeBlock();
-		}
-	}
+			for(int row = 0; row < 9; row++)
+			{
+				solve(1,1);
+				mergeRow();
+				mergeColumn();
+				mergeBlock();
+				rowSolve(row); //not yet working
+				columnSolve(row);
+			}
+		}	
+
+		// cout<<"after solving\n";
+		// printOutput();
 
 
+		// for(int i = 0; i < 3; i++)
+		// {
+		// 	for(int j = 0; j < 3; j++)
+		// 	{
+		// 		blockSolve(i, j); //not yet working
+		// 	}
+		// }
 
-		cout<<"after solving\n";
-		printOutput();
-
-
-			for(int i = 0; i < 100; i++)
-		{
-		for(int row = 0; row < 9; row++)
-		{
-			rowSolve(row); //not yet working
-			solve(1,1);
-			mergeRow();
-			mergeColumn();
-			mergeBlock();
-		}
-	}
-
-	
-
-		cout<<"after solving\n";
+		cout<<"after solving block\n";
 		printOutput();
 	}
 }
-
-
