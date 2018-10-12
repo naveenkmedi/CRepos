@@ -6,12 +6,12 @@ void printVector(vector <int> *pv)
 		cout<<"empty";
 	else
 	{
-	vector<int>::iterator itNum = pv->begin();
-	for(itNum; itNum != pv->end(); itNum++)
-	{
-		cout<<*itNum<<"  ";
+		vector<int>::iterator itNum = pv->begin();
+		for(itNum; itNum != pv->end(); itNum++)
+		{
+			cout<<*itNum<<"  ";
+		}
 	}
-}
 	cout<<endl;
 }
 
@@ -28,7 +28,7 @@ void printOutput()
 	{
 		for(int count2 = 0; count2 < 9; count2++)
 		{
-			cout<<ip[count][count2]<<" ";
+			cout<<ip[count][count2]<<""<<ve[count][count2].size()<<"  ";
 			if(0 == ip[count][count2])
 				{zeroes++;}
 			if(count2 % 3 == 2) cout<<" ";

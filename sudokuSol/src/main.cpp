@@ -29,15 +29,12 @@ vector<int> shrinkVector(vector<int> v)
 
 void checkVe(int row, int col)
 {
-	if(ve[row][col].size() == 1)
+	if((ve[row][col].size() == 1) && (ip[row][col] == 0))
 	{
-		if(ip[row][col] == 0)
-		{
-			std::vector<int>::iterator it = ve[row][col].begin();
-			ip[row][col] = *it;
-			ve[row][col].pop_back();
-			updateDependents(row, col);
-		}
+		std::vector<int>::iterator it = ve[row][col].begin();
+		ip[row][col] = *it;
+		ve[row][col].pop_back();
+		updateDependents(row, col);
 	}
 }
 
@@ -217,7 +214,7 @@ int main(int argc, char* argv[])
 
 		if(arg >= 1)
 		{
-			for(int i = 0; i < 5; i++)
+			for(int k = 0; k < 1; k++)
 			{
 				for(int row = 0; row < 9; row++)
 				{
@@ -235,7 +232,16 @@ int main(int argc, char* argv[])
 					// {
 						rowSolve(row); //not yet working
 					// }
+
+					// for(int i = 0; i < 3; i++)
+					// {
+					// 	for(int j = 0; j < 3; j++)
+					// 	{
+					// 		blockSolve(i, j); //not yet working
+					// 	}
+					// }
 				}
+
 			}
 			cout<<"after row and column solving\n";
 			printOutput();
@@ -243,13 +249,18 @@ int main(int argc, char* argv[])
 
 		if(arg >= 3)
 		{
-			for(int repeat = 0; repeat <1; repeat++)
+			for(int repeat = 0; repeat <5; repeat++)
 			{
 				for(int i = 0; i < 3; i++)
 				{
 					for(int j = 0; j < 3; j++)
 					{
 						blockSolve(i, j); //not yet working
+						columnSolve(i*j);
+						rowSolve(i*j);
+						solve(1,1);
+						mergeRow();
+						mergeColumn();
 					}
 				}
 			}
@@ -257,5 +268,7 @@ int main(int argc, char* argv[])
 			cout<<"after solving block\n";
 			printOutput();
 		}
+		printVector(&ve[0][3]);
+		printVector(&ve[0][5]);
 	}
 }

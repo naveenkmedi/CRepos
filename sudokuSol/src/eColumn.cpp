@@ -38,7 +38,7 @@ int columnSolve(int col)
 							if(shrinkedSize(vCol) == toBeMerged)
 							{			
 								cout<<"found single in col = "<<col<<"\nelements \t";		
-								vector<int> shrinkedVector = shrinkVector(vCol);
+
 								for(int k = 0; k < mergeCount; k++)
 								{
 									cout<<mergElements[k]<<"\t";
@@ -46,8 +46,16 @@ int columnSolve(int col)
 								cout<<"\nshrinkedVector  ";
 								printVector(&shrinkedVector);
 
+/*cout<<"found single in row = "<<row<<"\n\nelements \t";	
+								for(int k = 0; k < mergeCount; k++)
+								{
+									cout<<mergElements[k]<<"  ";
+								}
+								cout<<"\nshrinkedVector  ";
+								printVector(&shrinkedVector);*/
 								updateColumnElements(col, vCol, &mergeCount, &mergElements[0]);
-								updateVColumn(col, &vCol, &mergeCount, &mergElements[0]);	
+								cout<<"line 48\n  ";
+								// updateVColumn(col, &vCol, &mergeCount, &mergElements[0]);	
 							}						
 							updateVColumn(col, &vCol, &mergeCount, &mergElements[0]);		
 						}
@@ -79,8 +87,8 @@ int columnSolve(int col)
 void updateVColumn(int col, vector<int> (*vColumn), int *mergeCount, int *mergElements)
 {
 	int row = mergElements[(*mergeCount) -1];
-	cout<<"\t row = "<< row<<"\n";
-	cout<<"row = "<<row<<"\t";
+	// cout<<"\t row = "<< row<<"\n";
+	// cout<<"row = "<<row<<"\t";
 	vector<int> element = ve[row][col];
 
 	for(int count = element.size(); count > 0; count--)
@@ -89,7 +97,7 @@ void updateVColumn(int col, vector<int> (*vColumn), int *mergeCount, int *mergEl
 	}	
 	mergElements[(*mergeCount) -1] = -1;
 	*mergeCount--;
-	 cout<<"   line 156\n";
+	 // cout<<"   line 156\n";
 }
 
 
